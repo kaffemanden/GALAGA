@@ -7,7 +7,7 @@ using DIKUArcade.Graphics;
 using System;
 using System.IO;
 
-
+namespace galaga{
 public class Game : IGameEventProcessor<object> {
     private Window win;
     private DIKUArcade.Timers.GameTimer gameTimer;
@@ -30,7 +30,6 @@ public class Game : IGameEventProcessor<object> {
             }
             if (gameTimer.ShouldRender()) { 
                 win.Clear();
-                player.Entity.RenderEntity();
             // Render gameplay entities here
                 win.SwapBuffers(); 
             }
@@ -52,4 +51,5 @@ public class Game : IGameEventProcessor<object> {
     public void ProcessEvent(GameEventType eventType, GameEvent<object> gameEvent) {
         throw new NotImplementedException();
     } 
+}
 }
