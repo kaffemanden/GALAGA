@@ -27,7 +27,7 @@ using galaga;
         Entity.Shape.AsDynamicShape().ChangeDirection(Dic);
     }   
     public void Move() {
-        if (Entity.Shape.Position.X < 1.0f && Entity.Shape.Position.Y < 1.0f && Entity.Shape.Position.X > 0.0f && Entity.Shape.Position.Y > 0.0f) {
+        if (Entity.Shape.Position.X < 0.9f && Entity.Shape.Position.Y < 0.9f && Entity.Shape.Position.X > 0.1f && Entity.Shape.Position.Y > 0.1f) {
             Entity.Shape.Move();
         }
         else 
