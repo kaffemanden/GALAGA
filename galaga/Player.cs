@@ -23,5 +23,16 @@ using galaga;
     }  
     public void ProcessEvent(GameEventType eventType, GameEvent<object> gameEvent) {
         }
-    }
+    public void Direction(Vec2F Dic) {
+        Entity.Shape.AsDynamicShape().ChangeDirection(Dic);
+    }   
+    public void Move() {
+        if (Entity.Shape.Position.X < 1 && Entity.Shape.Position.Y < 1 && Entity.Shape.Position.X > 0 && Entity.Shape.Position.Y > 0) {
+            Entity.Shape.Move();
+        }
+        else 
+        {}
 
+        }
+
+    }
