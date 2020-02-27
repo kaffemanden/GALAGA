@@ -37,6 +37,8 @@ public class Game : IGameEventProcessor<object> {
                 win.Clear();
             // Render gameplay entities here
                 win.SwapBuffers(); 
+                player.Entity.RenderEntity();
+                player.Move();
             }
 
             if (gameTimer.ShouldReset()) {
