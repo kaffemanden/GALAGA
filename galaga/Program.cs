@@ -19,7 +19,6 @@ namespace galaga
         static void Main(string[] args)
         {
            Game game = new Game();
-           game.AddEnemies(5);
            game.GameLoop();
         }
     }

@@ -42,14 +42,12 @@ public class Game : IGameEventProcessor<object> {
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
     }
-    public void AddEnemies(int num){
+    public void AddEnemies(){
         enemy = new Enemy(
-            new DynamicShape(new Vec2F(0.1f, 0.1f), new Vec2F(0.1f, 0.1f)),
+            new DynamicShape(new Vec2F(0.1f, 0.9f), new Vec2F(0.1f, 0.1f)),
             new ImageStride(80,enemyStrides));
-        for (int i = 0; i < num; i++) {
-            enemies.Add(enemy);
-        }
-    } 
+        enemies.Add(enemy);
+        } 
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -64,6 +62,7 @@ public class Game : IGameEventProcessor<object> {
                 player.Move();
                 eventBus.ProcessEvents();
                 foreach(Enemy element in enemies) {
+                    if (enemy.Shape.Position == )
                     enemy.RenderEntity();
                 }
                 win.SwapBuffers(); 

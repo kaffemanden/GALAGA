@@ -13,7 +13,20 @@ using DIKUArcade.Utilities;
 using galaga;
 
 public class Enemy : Entity {
-    public Enemy(DynamicShape shape, IBaseImage image): base(shape, image) {} 
-    
+    public Enemy enemy;
+    public Enemy(DynamicShape shape, IBaseImage image): base(shape, image) {
 
+    } 
+
+    public void Move() {
+        void position(float x) {
+        if (enemy.Shape.Position.X < x && enemy.Shape.Position.Y < 0.9f) {
+        enemy.Shape.Move();
+
+    
+    }
+
+        }
+    
+    }
 }
