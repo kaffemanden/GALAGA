@@ -27,13 +27,21 @@ using galaga;
         Entity.Shape.AsDynamicShape().ChangeDirection(Dic);
     }   
     public void Move() {
-        if (Entity.Shape.Position.X < 0.9f && Entity.Shape.Position.Y < 0.9f && Entity.Shape.Position.X > 0.1f && Entity.Shape.Position.Y > 0.1f) {
+        if (Entity.Shape.Position.X > 0.9) {
+            if (Entity.Shape.AsDynamicShape().Direction.X < 0) {
             Entity.Shape.Move();
-        }
-        else 
-        {}
+            }
+            
 
         }
-
-    
+        else if (Entity.Shape.Position.X < 0) {
+            if (Entity.Shape.AsDynamicShape().Direction.X > 0) {
+                Entity.Shape.Move();
+            }
+        }
+        else if  (Entity.Shape.Position.X < 0.9f)  {
+            Entity.Shape.Move();
+        }   
+        
+    }
     }
