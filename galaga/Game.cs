@@ -18,6 +18,9 @@ public class Game : IGameEventProcessor<object> {
     private DIKUArcade.Timers.GameTimer gameTimer;
     private Player player;
     private DIKUArcade.EventBus.GameEventBus<object> eventBus;
+    private List<Image> enemyStrides;
+    private List<Enemy> enemies;
+    private Enemy enemy;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
     
@@ -35,8 +38,18 @@ public class Game : IGameEventProcessor<object> {
     win.RegisterEventBus(eventBus); 
     eventBus.Subscribe(GameEventType.InputEvent, this); 
     eventBus.Subscribe(GameEventType.WindowEvent, this);
-    
+
+    enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
+    enemies = new List<Enemy>();
     }
+    public void AddEnemies(int num){
+        enemy = new Enemy(
+            new DynamicShape(new Vec2F(0.1f, 0.1f), new Vec2F(0.1f, 0.1f)),
+            new ImageStride(80,enemyStrides));
+        for (int i = 0; i < num; i++) {
+            enemies.Add(enemy);
+        }
+    } 
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -50,6 +63,9 @@ public class Game : IGameEventProcessor<object> {
                 player.Entity.RenderEntity();
                 player.Move();
                 eventBus.ProcessEvents();
+                foreach(Enemy element in enemies) {
+                    enemy.RenderEntity();
+                }
                 win.SwapBuffers(); 
             }
 
