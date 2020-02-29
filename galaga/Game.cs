@@ -21,6 +21,7 @@ public class Game : IGameEventProcessor<object> {
     private List<Image> enemyStrides;
     private List<Enemy> enemies;
     private Enemy enemy;
+    private List<Playershot> playerShots;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
     
@@ -41,6 +42,7 @@ public class Game : IGameEventProcessor<object> {
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
+    playerShots = new List<Playershot>();
     }
     public void AddEnemies(int aoe){
         for (int i= 0; i < aoe; i++){
