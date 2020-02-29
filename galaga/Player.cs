@@ -16,6 +16,10 @@ using galaga;
     {
         public Entity Entity {get; private set;}
 
+        public Game game;
+
+        private Image shotStride= new Image (Path.Combine("Assets", "Images", "BulletRed2.png"));
+
     
     public Player(DynamicShape shape, IBaseImage image)
     {
@@ -31,8 +35,6 @@ using galaga;
             if (Entity.Shape.AsDynamicShape().Direction.X < 0) {
             Entity.Shape.Move();
             }
-            
-
         }
         else if (Entity.Shape.Position.X < 0) {
             if (Entity.Shape.AsDynamicShape().Direction.X > 0) {
@@ -42,6 +44,11 @@ using galaga;
         else if  (Entity.Shape.Position.X < 0.9f)  {
             Entity.Shape.Move();
         }   
-        
+    }
+    public void AddShot() {
+            Playershot shot = new Playershot(new DynamicShape(
+                new Vec2F((Entity.Shape.Position.X + Entity.Shape.Position.X / 2 - 0.004f) ,  0.20f),
+                new Vec2F(0.008f,0.027f)), shotStride);
+            game.playerShots.Add(shot);
     }
     }

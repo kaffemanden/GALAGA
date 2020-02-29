@@ -16,14 +16,19 @@ using galaga;
 public class Game : IGameEventProcessor<object> {
     private Window win;
     private DIKUArcade.Timers.GameTimer gameTimer;
+
+    public DIKUArcade.Timers.StaticTimer staticTimer;
     private Player player;
     private DIKUArcade.EventBus.GameEventBus<object> eventBus;
     private List<Image> enemyStrides;
     private List<Enemy> enemies;
     private Enemy enemy;
+    public List<Playershot> playerShots {get; private set;}
+
+    public Playershot Playershott;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
-    
+    staticTimer = new StaticTimer();
     win = new Window("galaga", 500, 500);
     gameTimer = new GameTimer();
     
@@ -41,13 +46,38 @@ public class Game : IGameEventProcessor<object> {
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
+    playerShots = new List<Playershot>();
     }
-    public void AddEnemies(){
+    public void AddEnemies(int aoe){
+        for (int i= 0; i < aoe; i++){
+        var rand = new Random();
+        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
+        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
         enemy = new Enemy(
-            new DynamicShape(new Vec2F(0.1f, 0.9f), new Vec2F(0.1f, 0.1f)),
+            new DynamicShape(new Vec2F((float)randomx, (float)randomy), new Vec2F(0.1f, 0.1f)),
             new ImageStride(80,enemyStrides));
-        enemies.Add(enemy);
-        } 
+        enemies.Add(enemy);}
+    }
+
+    public void IterateShots() {
+        var shotDynShape = Playershott.Shape.AsDynamicShape();
+        foreach (var shot in playerShots) {
+        shot.Shape.Move();
+        if (shot.Shape.Position.Y > 1.0f) 
+        {
+        shot.DeleteEntity(); } 
+        else {
+        foreach (var enemy in enemies) 
+        {
+            if (DIKUArcade.Physics.CollisionDetection.Aabb(shotDynShape, enemy.Shape).Collision == true )
+            {
+                enemy.DeleteEntity();
+                shot.DeleteEntity();
+            }
+         } 
+        }
+    } 
+}
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -61,8 +91,10 @@ public class Game : IGameEventProcessor<object> {
                 player.Entity.RenderEntity();
                 player.Move();
                 eventBus.ProcessEvents();
-                foreach(Enemy element in enemies) {
-                    if (enemy.Shape.Position == )
+                foreach(Playershot shot in playerShots) {
+                    shot.RenderEntity();
+                }
+                foreach(Enemy enemy in enemies) {
                     enemy.RenderEntity();
                 }
                 win.SwapBuffers(); 
@@ -92,14 +124,30 @@ public class Game : IGameEventProcessor<object> {
                 newDirection.X = 0.01f;
                 newDirection.Y = 0.0f;
                 player.Direction(newDirection);
+                break;
+            case "KEY_SPACE":
+                player.AddShot();            
+                break;
+            case "KEY_SPACE" + "KEY_A":
+                newDirection.X = -0.01f;
+                newDirection.Y = 0.0f;
+                player.Direction(newDirection);
+                player.AddShot();
+                break;
+
+            case "KEY_SPACE" + "KEY_D":
+                newDirection.X = 0.01f;
+                newDirection.Y = 0.0f;
+                player.Direction(newDirection);
+                player.AddShot();
                 break; 
             }
         }
     public void KeyRelease(string key) {
         if (key != "KEY_ESCAPE") {
         Vec2F nodic = new Vec2F();
-        nodic.X = 0f;
-        nodic.Y = 0f;
+        nodic.X = 0.0f;
+        nodic.Y = 0.0f;
         player.Direction(nodic);
         }    
     }
