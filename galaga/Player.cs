@@ -15,11 +15,6 @@ using galaga;
     public class Player : IGameEventProcessor<object>
     {
         public Entity Entity {get; private set;}
-
-        public Game game;
-
-        private Image shotStride= new Image (Path.Combine("Assets", "Images", "BulletRed2.png"));
-
     
     public Player(DynamicShape shape, IBaseImage image)
     {
@@ -46,9 +41,9 @@ using galaga;
         }   
     }
     public void AddShot() {
-            Playershot shot = new Playershot(new DynamicShape(
-                new Vec2F((Entity.Shape.Position.X + Entity.Shape.Position.X / 2 - 0.004f) ,  0.20f),
-                new Vec2F(0.008f,0.027f)), shotStride);
-            game.playerShots.Add(shot);
+        Playershot shot = new Playershot(
+            new DynamicShape( new Vec2F((Entity.Shape.Position.X + 0.0465f) ,  0.2f),new Vec2F(0.008f,0.027f)), 
+            new Image (Path.Combine("Assets", "Images", "BulletRed2.png")));
+        Game.playerShots.Add(shot);
     }
     }

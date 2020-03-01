@@ -11,7 +11,7 @@ using DIKUArcade.Input;
 using DIKUArcade.Physics;
 using DIKUArcade.State;
 using DIKUArcade.Utilities;
-using galaga;
+using ScoreSystem;
 
 public class Game : IGameEventProcessor<object> {
     private Window win;
@@ -23,14 +23,15 @@ public class Game : IGameEventProcessor<object> {
     private List<Image> enemyStrides;
     private List<Enemy> enemies;
     private Enemy enemy;
-    public List<Playershot> playerShots {get; private set;}
-
-    public Playershot Playershott;
+    public static List<Playershot> playerShots {get; private set;}
+    private List<Image> explosionStrides;
+    private AnimationContainer explosions;
+    private Score score;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
     staticTimer = new StaticTimer();
     win = new Window("galaga", 500, 500);
-    gameTimer = new GameTimer();
+    gameTimer = new GameTimer(60,60);
     
     player = new Player(
         new DynamicShape(new Vec2F(0.45f, 0.1f), new Vec2F(0.1f, 0.1f)),
@@ -46,36 +47,73 @@ public class Game : IGameEventProcessor<object> {
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
+
     playerShots = new List<Playershot>();
+
+    explosionStrides = ImageStride.CreateStrides(8, Path.Combine("Assets", "Images", "Explosion.png"));
+    explosions = new AnimationContainer(70);
+
+    score = new Score(new Vec2F(0.05f,-0.15f), new Vec2F (0.2f,0.2f));
+
     }
     public void AddEnemies(int aoe){
         for (int i= 0; i < aoe; i++){
         var rand = new Random();
-        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
-        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
+        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
+        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
         enemy = new Enemy(
             new DynamicShape(new Vec2F((float)randomx, (float)randomy), new Vec2F(0.1f, 0.1f)),
             new ImageStride(80,enemyStrides));
         enemies.Add(enemy);}
     }
 
-    public void IterateShots() {
-        var shotDynShape = Playershott.Shape.AsDynamicShape();
+    public void AddExplosion(float posX, float posY,float extentX, float extentY) { 
+        explosions.AddAnimation(
+        new StationaryShape(posX, posY, extentX, extentY), 500,
+        new ImageStride(500 / 8, explosionStrides));
+    }
+
+    public void IterateShots()
+     {
+        int counter = enemies.Count; 
+        explosions.RenderAnimations();
+        score.RenderScore();
         foreach (var shot in playerShots) {
-        shot.Shape.Move();
-        if (shot.Shape.Position.Y > 1.0f) 
-        {
-        shot.DeleteEntity(); } 
-        else {
-        foreach (var enemy in enemies) 
-        {
-            if (DIKUArcade.Physics.CollisionDetection.Aabb(shotDynShape, enemy.Shape).Collision == true )
-            {
-                enemy.DeleteEntity();
-                shot.DeleteEntity();
+            shot.Shape.Move();
+            if (shot.Shape.Position.Y > 1.0f) {
+                shot.DeleteEntity(); 
+                } 
+            else {
+                foreach (var enemy in enemies){
+                    if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
+                    {
+                        shot.DeleteEntity();
+                        enemy.DeleteEntity();
+                        AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
+                        score.AddPoint();
+                        counter = counter - 1;
+                    }
+                }
+                if (counter == 0)
+                {
+                    AddEnemies(4);
+                }
+                }
+        List<Enemy> newEnemies = new List<Enemy>();
+        foreach (Enemy enemy in enemies) {
+            if (!enemy.IsDeleted()) { 
+                newEnemies.Add(enemy);
+                } 
             }
-         } 
-        }
+        enemies = newEnemies;
+        List<Playershot> newShots = new List<Playershot>();
+        foreach (Playershot shott in playerShots) {
+            if (!shott.IsDeleted()) { 
+                newShots.Add(shott);
+                } 
+            }
+        playerShots = newShots;
+
     } 
 }
     public void GameLoop() {
@@ -91,12 +129,13 @@ public class Game : IGameEventProcessor<object> {
                 player.Entity.RenderEntity();
                 player.Move();
                 eventBus.ProcessEvents();
-                foreach(Playershot shot in playerShots) {
-                    shot.RenderEntity();
-                }
                 foreach(Enemy enemy in enemies) {
                     enemy.RenderEntity();
                 }
+                foreach(Playershot shot in playerShots) {
+                    shot.RenderEntity();
+                }
+                IterateShots();
                 win.SwapBuffers(); 
             }
 
