@@ -11,7 +11,7 @@ using DIKUArcade.Input;
 using DIKUArcade.Physics;
 using DIKUArcade.State;
 using DIKUArcade.Utilities;
-using galaga;
+using ScoreSystem;
 
 public class Game : IGameEventProcessor<object> {
     private Window win;
@@ -26,6 +26,7 @@ public class Game : IGameEventProcessor<object> {
     public static List<Playershot> playerShots {get; private set;}
     private List<Image> explosionStrides;
     private AnimationContainer explosions;
+    private Score score;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
     staticTimer = new StaticTimer();
@@ -52,6 +53,8 @@ public class Game : IGameEventProcessor<object> {
     explosionStrides = ImageStride.CreateStrides(8, Path.Combine("Assets", "Images", "Explosion.png"));
     explosions = new AnimationContainer(70);
 
+    score = new Score(new Vec2F(0.05f,-0.15f), new Vec2F (0.2f,0.2f));
+
     }
     public void AddEnemies(int aoe){
         for (int i= 0; i < aoe; i++){
@@ -72,6 +75,7 @@ public class Game : IGameEventProcessor<object> {
 
     public void IterateShots() {
         explosions.RenderAnimations();
+        score.RenderScore();
         foreach (var shot in playerShots) {
             shot.Shape.Move();
             if (shot.Shape.Position.Y > 1.0f) {
@@ -81,9 +85,10 @@ public class Game : IGameEventProcessor<object> {
                 foreach (var enemy in enemies){
                     if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision)
                     {
-                        AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
                         shot.DeleteEntity();
                         enemy.DeleteEntity();
+                        AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
+                        score.AddPoint();
                     }
                 }
                 }
