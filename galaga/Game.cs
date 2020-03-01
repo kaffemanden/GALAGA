@@ -7,10 +7,7 @@ using DIKUArcade.Timers;
 using DIKUArcade.Math;
 using DIKUArcade.Entities;
 using DIKUArcade.Graphics;
-using DIKUArcade.Input;
 using DIKUArcade.Physics;
-using DIKUArcade.State;
-using DIKUArcade.Utilities;
 using ScoreSystem;
 
 public class Game : IGameEventProcessor<object> {

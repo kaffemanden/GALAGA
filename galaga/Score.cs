@@ -1,17 +1,5 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
-using DIKUArcade;
-using DIKUArcade.EventBus;
-using DIKUArcade.Timers;
 using DIKUArcade.Math;
-using DIKUArcade.Entities;
 using DIKUArcade.Graphics;
-using DIKUArcade.Input;
-using DIKUArcade.Physics;
-using DIKUArcade.State;
-using DIKUArcade.Utilities;
-using galaga;
 
 namespace ScoreSystem {
 public class Score{
