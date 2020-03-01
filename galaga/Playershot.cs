@@ -12,10 +12,7 @@ using DIKUArcade.State;
 using DIKUArcade.Utilities;
 
 public class Playershot : Entity {
-    private Playershot playershot;
     public Playershot(DynamicShape shape, IBaseImage image): base(shape, image) {
-        Vec2F dic = new Vec2F();
-        dic.X = 0.0f;
-        dic.Y = 0.1f;
-        playershot.Shape.AsDynamicShape().ChangeDirection(dic);}
+        shape.AsDynamicShape().Direction = new Vec2F(0.0f, 0.01f); 
+        }
     } 

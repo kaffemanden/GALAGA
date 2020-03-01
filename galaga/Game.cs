@@ -16,15 +16,17 @@ using galaga;
 public class Game : IGameEventProcessor<object> {
     private Window win;
     private DIKUArcade.Timers.GameTimer gameTimer;
+
+    public DIKUArcade.Timers.StaticTimer staticTimer;
     private Player player;
     private DIKUArcade.EventBus.GameEventBus<object> eventBus;
     private List<Image> enemyStrides;
     private List<Enemy> enemies;
     private Enemy enemy;
-    private List<Playershot> playerShots;
+    public static List<Playershot> playerShots {get; private set;}
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
-    
+    staticTimer = new StaticTimer();
     win = new Window("galaga", 500, 500);
     gameTimer = new GameTimer();
     
@@ -54,6 +56,39 @@ public class Game : IGameEventProcessor<object> {
             new ImageStride(80,enemyStrides));
         enemies.Add(enemy);}
     }
+
+    public void IterateShots() {
+        foreach (var shot in playerShots) {
+            shot.Shape.Move();
+            if (shot.Shape.Position.Y > 1.0f) {
+                shot.DeleteEntity(); 
+                } 
+            else {
+                foreach (var enemy in enemies){
+                    if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision)
+                    {
+                        enemy.DeleteEntity();
+                        shot.DeleteEntity();
+                    }
+                }
+                }
+        List<Enemy> newEnemies = new List<Enemy>();
+        foreach (Enemy enemy in enemies) {
+            if (!enemy.IsDeleted()) { 
+                newEnemies.Add(enemy);
+                } 
+            }
+        enemies = newEnemies;
+        List<Playershot> newShots = new List<Playershot>();
+        foreach (Playershot shott in playerShots) {
+            if (!shott.IsDeleted()) { 
+                newShots.Add(shott);
+                } 
+            }
+        playerShots = newShots;
+
+    } 
+}
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -70,6 +105,10 @@ public class Game : IGameEventProcessor<object> {
                 foreach(Enemy enemy in enemies) {
                     enemy.RenderEntity();
                 }
+                foreach(Playershot shot in playerShots) {
+                    shot.RenderEntity();
+                }
+                IterateShots();
                 win.SwapBuffers(); 
             }
 
@@ -97,6 +136,22 @@ public class Game : IGameEventProcessor<object> {
                 newDirection.X = 0.01f;
                 newDirection.Y = 0.0f;
                 player.Direction(newDirection);
+                break;
+            case "KEY_SPACE":
+                player.AddShot();            
+                break;
+            case "KEY_SPACE" + "KEY_A":
+                newDirection.X = -0.01f;
+                newDirection.Y = 0.0f;
+                player.Direction(newDirection);
+                player.AddShot();
+                break;
+
+            case "KEY_SPACE" + "KEY_D":
+                newDirection.X = 0.01f;
+                newDirection.Y = 0.0f;
+                player.Direction(newDirection);
+                player.AddShot();
                 break; 
             }
         }

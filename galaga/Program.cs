@@ -20,7 +20,7 @@ namespace galaga
         {
            Game game = new Game();
             game.AddEnemies(5);
-           game.GameLoop();
+            game.GameLoop();
         }
     }
 }
