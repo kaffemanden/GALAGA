@@ -24,6 +24,8 @@ public class Game : IGameEventProcessor<object> {
     private List<Enemy> enemies;
     private Enemy enemy;
     public static List<Playershot> playerShots {get; private set;}
+    private List<Image> explosionStrides;
+    private AnimationContainer explosions;
     public Game() {
 // TODO: Choose some reasonable values for the window and timer constructor. // For the window, we recommend a 500x500 resolution (a 1:1 aspect ratio). 
     staticTimer = new StaticTimer();
@@ -44,20 +46,32 @@ public class Game : IGameEventProcessor<object> {
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
+
     playerShots = new List<Playershot>();
+
+    explosionStrides = ImageStride.CreateStrides(8, Path.Combine("Assets", "Images", "Explosion.png"));
+    explosions = new AnimationContainer(70);
+
     }
     public void AddEnemies(int aoe){
         for (int i= 0; i < aoe; i++){
         var rand = new Random();
-        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
-        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.2)+0.2), 1);
+        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
+        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
         enemy = new Enemy(
             new DynamicShape(new Vec2F((float)randomx, (float)randomy), new Vec2F(0.1f, 0.1f)),
             new ImageStride(80,enemyStrides));
         enemies.Add(enemy);}
     }
 
+    public void AddExplosion(float posX, float posY,float extentX, float extentY) { 
+        explosions.AddAnimation(
+        new StationaryShape(posX, posY, extentX, extentY), 500,
+        new ImageStride(500 / 8, explosionStrides));
+    }
+
     public void IterateShots() {
+        explosions.RenderAnimations();
         foreach (var shot in playerShots) {
             shot.Shape.Move();
             if (shot.Shape.Position.Y > 1.0f) {
@@ -67,8 +81,9 @@ public class Game : IGameEventProcessor<object> {
                 foreach (var enemy in enemies){
                     if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision)
                     {
-                        enemy.DeleteEntity();
+                        AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
                         shot.DeleteEntity();
+                        enemy.DeleteEntity();
                     }
                 }
                 }
