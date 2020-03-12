@@ -13,7 +13,6 @@ using ScoreSystem;
 public class Game : IGameEventProcessor<object> {
     private Window win;
     private DIKUArcade.Timers.GameTimer gameTimer;
-
     public DIKUArcade.Timers.StaticTimer staticTimer;
     private Player player;
     private DIKUArcade.EventBus.GameEventBus<object> eventBus;
@@ -37,10 +36,12 @@ public class Game : IGameEventProcessor<object> {
     eventBus = new GameEventBus<object>(); 
     eventBus.InitializeEventBus(new List<GameEventType>() {
     GameEventType.InputEvent, // key press / key release
-    GameEventType.WindowEvent, }); // messages to the window 
+    GameEventType.WindowEvent, // messages to the window  
+    GameEventType.PlayerEvent }); 
     win.RegisterEventBus(eventBus); 
     eventBus.Subscribe(GameEventType.InputEvent, this); 
     eventBus.Subscribe(GameEventType.WindowEvent, this);
+    eventBus.Subscribe(GameEventType.PlayerEvent, player);
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
     enemies = new List<Enemy>();
@@ -143,69 +144,62 @@ public class Game : IGameEventProcessor<object> {
             }
         }
     }
-    
+
     private void KeyPress(string key) {
-        Vec2F newDirection = new Vec2F();
             switch(key) {
             case "KEY_ESCAPE": eventBus.RegisterEvent(
                 GameEventFactory<object>.CreateGameEventForAllProcessors(
                 GameEventType.WindowEvent, this, "CLOSE_WINDOW", "", "")); 
                 break;
-            case "KEY_A":
-                newDirection.X = -0.01f;
-                newDirection.Y = 0.0f;
-                player.Direction(newDirection);
+            case "KEY_A": eventBus.RegisterEvent(
+                GameEventFactory<object>.CreateGameEventForAllProcessors(
+                GameEventType.PlayerEvent, this, "MOVE_LEFT", "", ""));
                 break;
-            case "KEY_D":
-                newDirection.X = 0.01f;
-                newDirection.Y = 0.0f;
-                player.Direction(newDirection);
+            case "KEY_D": eventBus.RegisterEvent(
+                GameEventFactory<object>.CreateGameEventForAllProcessors(
+                GameEventType.PlayerEvent, this, "MOVE_RIGHT", "",""));
                 break;
-            case "KEY_SPACE":
-                player.AddShot();            
+            case "KEY_SPACE": eventBus.RegisterEvent(
+                GameEventFactory<object>.CreateGameEventForAllProcessors(
+                GameEventType.PlayerEvent, this, "SHOTS", "",""));            
                 break;
-            case "KEY_SPACE" + "KEY_A":
-                newDirection.X = -0.01f;
-                newDirection.Y = 0.0f;
-                player.Direction(newDirection);
-                player.AddShot();
-                break;
-
-            case "KEY_SPACE" + "KEY_D":
-                newDirection.X = 0.01f;
-                newDirection.Y = 0.0f;
-                player.Direction(newDirection);
-                player.AddShot();
-                break; 
             }
         }
+    
     public void KeyRelease(string key) {
-        if (key != "KEY_ESCAPE") {
-        Vec2F nodic = new Vec2F();
-        nodic.X = 0.0f;
-        nodic.Y = 0.0f;
-        player.Direction(nodic);
+        if (key != "KEY_ESCAPE"){
+        switch(key) {
+            case "KEY_A": eventBus.RegisterEvent(
+                GameEventFactory<object>.CreateGameEventForAllProcessors(
+                GameEventType.PlayerEvent, this, "KEY_RELEASE", "", ""));
+            break;
+            case "KEY_D": eventBus.RegisterEvent(
+                GameEventFactory<object>.CreateGameEventForAllProcessors(
+                GameEventType.PlayerEvent, this, "KEY_RELEASE", "", ""));
+            break;
+            }
         }    
     }
 
-    
     public void ProcessEvent(GameEventType eventType, GameEvent<object> gameEvent) {
         if (eventType == GameEventType.WindowEvent) {
-            switch (gameEvent.Message) { case "CLOSE_WINDOW":
+            switch (gameEvent.Message) { 
+            case "CLOSE_WINDOW":
                 win.CloseWindow();
                 break;
             default:
                 break;
+            }   
+        } 
+        else if (eventType == GameEventType.InputEvent) {
+        switch (gameEvent.Parameter1) { 
+            case "KEY_PRESS":
+                KeyPress(gameEvent.Message);
+                break;
+            case "KEY_RELEASE":
+                KeyRelease(gameEvent.Message); 
+                break;
+            } 
+        }
     }
-} else if (eventType == GameEventType.InputEvent) {
-    switch (gameEvent.Parameter1) { 
-        case "KEY_PRESS":
-            KeyPress(gameEvent.Message);
-            break;
-        case "KEY_RELEASE":
-            KeyRelease(gameEvent.Message); 
-            break;
-
-  } }
-}
 }

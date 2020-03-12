@@ -12,10 +12,27 @@ using DIKUArcade.Graphics;
         Entity = new Entity(shape, image);
     }  
     public void ProcessEvent(GameEventType eventType, GameEvent<object> gameEvent) {
+        if (eventType == GameEventType.PlayerEvent) {
+            switch (gameEvent.Message) {
+                case "MOVE_LEFT":
+                    Direction (new Vec2F (-0.01f, 0.0f));
+                    break; 
+                case "MOVE_RIGHT":
+                    Direction (new Vec2F (0.01f, 0.0f)); 
+                    break; 
+                case "KEY_RELEASE":
+                    Direction (new Vec2F (0.0f, 0.0f)); 
+                    break;
+                case "SHOTS":
+                    AddShot(); 
+                    break; 
+            }
         }
-    public void Direction(Vec2F Dic) {
+    }
+    
+    private void Direction(Vec2F Dic) {
         Entity.Shape.AsDynamicShape().ChangeDirection(Dic);
-    }   
+    }
     public void Move() {
         if (Entity.Shape.Position.X > 0.9) {
             if (Entity.Shape.AsDynamicShape().Direction.X < 0) {
@@ -37,4 +54,4 @@ using DIKUArcade.Graphics;
             new Image (Path.Combine("Assets", "Images", "BulletRed2.png")));
         Game.playerShots.Add(shot);
     }
-    }
+}
