@@ -9,16 +9,22 @@ using DIKUArcade.Entities;
 using DIKUArcade.Graphics;
 using DIKUArcade.Physics;
 using ScoreSystem;
+using galaga.Squadron;
+using galaga.MovementStrategy;
 
 public class Game : IGameEventProcessor<object> {
     private Window win;
+    private formation1 Formation1;
+    private formation2 Formation2;
+    private formation3 Formation3;
+    private NoMove nomove;
+    private Down down;
+    private Zigzag zigzag;
     private DIKUArcade.Timers.GameTimer gameTimer;
     public DIKUArcade.Timers.StaticTimer staticTimer;
     private Player player;
     private DIKUArcade.EventBus.GameEventBus<object> eventBus;
     private List<Image> enemyStrides;
-    private List<Enemy> enemies;
-    private Enemy enemy;
     public static List<Playershot> playerShots {get; private set;}
     private List<Image> explosionStrides;
     private AnimationContainer explosions;
@@ -44,25 +50,21 @@ public class Game : IGameEventProcessor<object> {
     eventBus.Subscribe(GameEventType.PlayerEvent, player);
 
     enemyStrides = ImageStride.CreateStrides(4, Path.Combine("Assets", "Images", "BlueMonster.png"));
-    enemies = new List<Enemy>();
-
     playerShots = new List<Playershot>();
 
     explosionStrides = ImageStride.CreateStrides(8, Path.Combine("Assets", "Images", "Explosion.png"));
     explosions = new AnimationContainer(70);
-
     score = new Score(new Vec2F(0.05f,-0.15f), new Vec2F (0.2f,0.2f));
 
-    }
-    public void AddEnemies(int aoe){
-        for (int i= 0; i < aoe; i++){
-        var rand = new Random();
-        var randomx = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
-        var randomy = Math.Round((decimal)(rand.NextDouble()*(0.9-0.3)+0.3), 1);
-        enemy = new Enemy(
-            new DynamicShape(new Vec2F((float)randomx, (float)randomy), new Vec2F(0.1f, 0.1f)),
-            new ImageStride(80,enemyStrides));
-        enemies.Add(enemy);}
+    Formation1 = new formation1();
+    Formation2 = new formation2();
+    Formation3 = new formation3();
+    this.Formation2.CreateEnemies(enemyStrides);
+    
+    nomove = new NoMove(); 
+    down = new Down(); 
+    zigzag = new Zigzag();
+    this.nomove.MoveEnemies(Formation1.Enemies);
     }
 
     public void AddExplosion(float posX, float posY,float extentX, float extentY) { 
@@ -73,47 +75,75 @@ public class Game : IGameEventProcessor<object> {
 
     public void IterateShots()
      {
-        int counter = enemies.Count; 
         explosions.RenderAnimations();
         score.RenderScore();
+        int counter1 = Formation1.Enemies.CountEntities();
+        int counter2 = Formation2.Enemies.CountEntities();
+        int counter3 = Formation3.Enemies.CountEntities();
+        int allenemies = counter1 + counter2 + counter3;
+        if (allenemies == 0){
+            if (new Random().Next(1,4) == 1) {
+                this.Formation1.CreateEnemies(enemyStrides);
+                }
+            else if (new Random().Next(1,4) == 2){
+                this.Formation2.CreateEnemies(enemyStrides);
+                }
+            else if (new Random().Next(1,4) == 3){
+                this.Formation3.CreateEnemies(enemyStrides);
+                }
+            }     
         foreach (var shot in playerShots) {
             shot.Shape.Move();
             if (shot.Shape.Position.Y > 1.0f) {
                 shot.DeleteEntity(); 
                 } 
             else {
-                foreach (var enemy in enemies){
-                    if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
-                    {
-                        shot.DeleteEntity();
-                        enemy.DeleteEntity();
-                        AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
-                        score.AddPoint();
-                        counter = counter - 1;
+                void checking1(Enemy enemy1) {
+                    foreach (Enemy enemy in Formation1.Enemies){
+                        if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
+                        {
+                            shot.DeleteEntity();
+                            enemy.DeleteEntity();
+                            AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
+                            score.AddPoint();
+                        }
                     }
                 }
-                if (counter == 0)
-                {
-                    AddEnemies(4);
+                void checking2(Enemy enemy2) {
+                    foreach (Enemy enemy in Formation2.Enemies){
+                        if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
+                        {
+                            shot.DeleteEntity();
+                            enemy.DeleteEntity();
+                            AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
+                            score.AddPoint();
+                        }
+                    }
                 }
-                }
-        List<Enemy> newEnemies = new List<Enemy>();
-        foreach (Enemy enemy in enemies) {
-            if (!enemy.IsDeleted()) { 
-                newEnemies.Add(enemy);
+                void checking3(Enemy enemy3) {
+                    foreach (Enemy enemy in Formation3.Enemies){
+                        if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
+                        {
+                            shot.DeleteEntity();
+                            enemy.DeleteEntity();
+                            AddExplosion(enemy.Shape.AsDynamicShape().Position.X,enemy.Shape.AsDynamicShape().Position.Y,enemy.Shape.AsDynamicShape().Extent.X,enemy.Shape.AsDynamicShape().Extent.Y);
+                            score.AddPoint();
+                        }
+                    }
                 } 
+                Formation1.Enemies.Iterate(checking1);
+                Formation2.Enemies.Iterate(checking2);
+                Formation3.Enemies.Iterate(checking3);
             }
-        enemies = newEnemies;
         List<Playershot> newShots = new List<Playershot>();
         foreach (Playershot shott in playerShots) {
             if (!shott.IsDeleted()) { 
                 newShots.Add(shott);
                 } 
             }
-        playerShots = newShots;
-
-    } 
-}
+        playerShots = newShots;   
+        } 
+    }
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -127,9 +157,9 @@ public class Game : IGameEventProcessor<object> {
                 player.Entity.RenderEntity();
                 player.Move();
                 eventBus.ProcessEvents();
-                foreach(Enemy enemy in enemies) {
-                    enemy.RenderEntity();
-                }
+                Formation1.Enemies.RenderEntities();
+                Formation2.Enemies.RenderEntities();
+                Formation3.Enemies.RenderEntities();
                 foreach(Playershot shot in playerShots) {
                     shot.RenderEntity();
                 }
