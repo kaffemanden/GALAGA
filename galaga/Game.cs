@@ -73,6 +73,8 @@ public class Game : IGameEventProcessor<object> {
         new ImageStride(500 / 8, explosionStrides));
     }
 
+    private int Move;
+    private int diff;
     public void IterateShots()
      {
         explosions.RenderAnimations();
@@ -81,15 +83,72 @@ public class Game : IGameEventProcessor<object> {
         int counter2 = Formation2.Enemies.CountEntities();
         int counter3 = Formation3.Enemies.CountEntities();
         int allenemies = counter1 + counter2 + counter3;
+        if (counter1 > 0) {
+            if (Move == 1){
+                for(int i = 0; i < diff; i++){
+                this.nomove.MoveEnemies(Formation1.Enemies);
+                }
+            }
+            else if(Move == 2){
+                for(int i = 0; i < diff; i++){
+                this.down.MoveEnemies(Formation1.Enemies);
+                }
+            }
+            else if(Move == 3){
+                for(int i = 0; i < diff; i++){
+                this.zigzag.MoveEnemies(Formation1.Enemies);
+                }
+            }
+        }
+        if (counter2 > 0) {
+            if (Move == 1){
+                for(int i = 0; i < diff; i++){
+                this.nomove.MoveEnemies(Formation2.Enemies);
+                }
+            }
+            else if(Move == 2){
+                for(int i = 0; i < diff; i++){
+                this.down.MoveEnemies(Formation2.Enemies);
+                }
+            }
+            else if(Move == 3){
+                for(int i = 0; i < diff; i++){
+                this.zigzag.MoveEnemies(Formation2.Enemies);
+                }
+            }
+        }
+        if (counter3 > 0) {
+            if (Move == 1){
+                for(int i = 0; i < diff; i++){
+                this.nomove.MoveEnemies(Formation3.Enemies);
+                }
+            }
+            else if(Move == 2){
+                for(int i = 0; i < diff; i++){
+                this.down.MoveEnemies(Formation3.Enemies);
+                }
+            }
+            else if(Move == 3){
+                for(int i = 0; i < diff; i++){
+                this.zigzag.MoveEnemies(Formation3.Enemies);
+                }
+            }
+        }
         if (allenemies == 0){
             if (new Random().Next(1,4) == 1) {
                 this.Formation1.CreateEnemies(enemyStrides);
+                Move = new Random().Next(1,4);
+                diff++;
                 }
             else if (new Random().Next(1,4) == 2){
                 this.Formation2.CreateEnemies(enemyStrides);
+                Move = new Random().Next(1,4);
+                diff++;
                 }
             else if (new Random().Next(1,4) == 3){
                 this.Formation3.CreateEnemies(enemyStrides);
+                Move = new Random().Next(1,4);
+                diff++;
                 }
             }     
         foreach (var shot in playerShots) {

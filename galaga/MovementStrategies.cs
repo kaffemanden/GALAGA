@@ -25,7 +25,7 @@ namespace galaga.MovementStrategy {
     public class Down : IMovementStrategy {
         public Vec2F direction;
         public Down() {
-            direction = new Vec2F(0.0f, -0.001f);
+            direction = new Vec2F(0.0f, -0.0001f);
         } 
         public void MoveEnemy(Enemy enemy){
             enemy.Shape.AsDynamicShape().Direction = direction; 
