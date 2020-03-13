@@ -7,6 +7,7 @@ namespace galaga.MovementStrategy {
         void MoveEnemy(Enemy enemy);
         void MoveEnemies(EntityContainer<Enemy> enemies);
     }
+    // Making the enemies stand still.
     public class NoMove : IMovementStrategy {
         public Vec2F direction;
         public NoMove() {
@@ -22,6 +23,7 @@ namespace galaga.MovementStrategy {
             }
         }
     }
+    // Making the enemies move downwards.
     public class Down : IMovementStrategy {
         public Vec2F direction;
         public Down() {
@@ -37,13 +39,14 @@ namespace galaga.MovementStrategy {
             }
         }
     }    
+    // Making the enemies move in a zigzag formation.
     public class  Zigzag: IMovementStrategy {
         public Vec2F direction;
         public double speed;
         public double period;
         public double amplitude;
         public Zigzag() {
-            speed = 0.0003;
+            speed = 0.0001;
             period = 0.045;
             amplitude = 0.05;
         } 

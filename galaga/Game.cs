@@ -66,23 +66,26 @@ public class Game : IGameEventProcessor<object> {
     zigzag = new Zigzag();
     this.nomove.MoveEnemies(Formation1.Enemies);
     }
-
+    // Method that adds the explosion animation and determines its animation speed
     public void AddExplosion(float posX, float posY,float extentX, float extentY) { 
         explosions.AddAnimation(
         new StationaryShape(posX, posY, extentX, extentY), 500,
         new ImageStride(500 / 8, explosionStrides));
     }
 
+    // Field that make the enemy do a random movement. 
     private int Move;
+    // Field that incease the difficulty.
     private int diff;
     public void IterateShots()
-     {
+    {
         explosions.RenderAnimations();
         score.RenderScore();
         int counter1 = Formation1.Enemies.CountEntities();
         int counter2 = Formation2.Enemies.CountEntities();
         int counter3 = Formation3.Enemies.CountEntities();
         int allenemies = counter1 + counter2 + counter3;
+        // Making the enemies of formation1 do a random movement and increaseing the difficulty depending on the diff field.
         if (counter1 > 0) {
             if (Move == 1){
                 for(int i = 0; i < diff; i++){
@@ -100,6 +103,7 @@ public class Game : IGameEventProcessor<object> {
                 }
             }
         }
+        // Making the enemies of formation2 do a random movement and increaseing the difficulty depending on the diff field.
         if (counter2 > 0) {
             if (Move == 1){
                 for(int i = 0; i < diff; i++){
@@ -117,6 +121,7 @@ public class Game : IGameEventProcessor<object> {
                 }
             }
         }
+        // Making the enemies of formation3 do a random movement and increaseing the difficulty depending on the diff field.
         if (counter3 > 0) {
             if (Move == 1){
                 for(int i = 0; i < diff; i++){
@@ -134,6 +139,7 @@ public class Game : IGameEventProcessor<object> {
                 }
             }
         }
+        // Checking if there are no enemies in the formation array. If true then it spawns a random enemy formation and update the fields Move and diff, so.
         if (allenemies == 0){
             if (new Random().Next(1,4) == 1) {
                 this.Formation1.CreateEnemies(enemyStrides);
@@ -157,7 +163,7 @@ public class Game : IGameEventProcessor<object> {
                 shot.DeleteEntity(); 
                 } 
             else {
-                void checking1(Enemy enemy1) {
+                void checking1(Enemy enemy1) { // checks for a collistion between the shot and enenmy.
                     foreach (Enemy enemy in Formation1.Enemies){
                         if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
                         {
@@ -168,7 +174,7 @@ public class Game : IGameEventProcessor<object> {
                         }
                     }
                 }
-                void checking2(Enemy enemy2) {
+                void checking2(Enemy enemy2) { // checks for a collistion between the shot and enenmy.
                     foreach (Enemy enemy in Formation2.Enemies){
                         if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
                         {
@@ -179,7 +185,7 @@ public class Game : IGameEventProcessor<object> {
                         }
                     }
                 }
-                void checking3(Enemy enemy3) {
+                void checking3(Enemy enemy3) { // checks for a collistion between the shot and enenmy.
                     foreach (Enemy enemy in Formation3.Enemies){
                         if (CollisionDetection.Aabb(shot.Shape.AsDynamicShape(), enemy.Shape).Collision == true)
                         {
@@ -203,6 +209,29 @@ public class Game : IGameEventProcessor<object> {
         playerShots = newShots;   
         } 
     }
+    // Decide if the game is over
+    private bool GameOver = false;
+    
+    //Checks if the game is over. While the game is not over, the game countinues else the game window is cleared and
+    // only shows the score. 
+    public void GameOverz(){
+        foreach (Enemy enemy in Formation1.Enemies){
+            if (enemy.Shape.AsDynamicShape().Position.Y < 0.01f){
+                GameOver = true;
+            }
+        }
+        foreach (Enemy enemy in Formation2.Enemies){
+            if (enemy.Shape.AsDynamicShape().Position.Y < 0.01f){
+                GameOver = true;
+            }
+        }
+        foreach (Enemy enemy in Formation3.Enemies){
+            if (enemy.Shape.AsDynamicShape().Position.Y < 0.01f){
+                GameOver = true;
+            }
+        }
+    }
+    // The Game Loop function that constantly checks for updates and keeps the game running.
     public void GameLoop() {
         while(win.IsRunning()) { 
             gameTimer.MeasureTime();
@@ -213,6 +242,7 @@ public class Game : IGameEventProcessor<object> {
             if (gameTimer.ShouldRender()) { 
                 win.Clear();
             // Render gameplay entities here
+                if (GameOver == false){
                 player.Entity.RenderEntity();
                 player.Move();
                 eventBus.ProcessEvents();
@@ -222,7 +252,14 @@ public class Game : IGameEventProcessor<object> {
                 foreach(Playershot shot in playerShots) {
                     shot.RenderEntity();
                 }
+                GameOverz();
                 IterateShots();
+                }
+                else
+                {
+                    score.RenderScore();   
+                    eventBus.ProcessEvents();
+                }
                 win.SwapBuffers(); 
             }
 
@@ -233,7 +270,7 @@ public class Game : IGameEventProcessor<object> {
             }
         }
     }
-
+    // A method that registers the key input to the playerevent. 
     private void KeyPress(string key) {
             switch(key) {
             case "KEY_ESCAPE": eventBus.RegisterEvent(
@@ -254,7 +291,7 @@ public class Game : IGameEventProcessor<object> {
                 break;
             }
         }
-    
+    // A method that registers the key input to the playerevent. 
     public void KeyRelease(string key) {
         if (key != "KEY_ESCAPE"){
         switch(key) {
