@@ -52,10 +52,10 @@ using DIKUArcade.Graphics;
             Entity.Shape.Move();
         }   
     }
-    // This method adds a shot to the player. 
+    // This method adds a shot to the playerShot array. 
     public void AddShot() {
         Playershot shot = new Playershot(
-            new DynamicShape( new Vec2F((Entity.Shape.Position.X + 0.0465f) ,  0.18f),new Vec2F(0.008f,0.027f)), 
+            new DynamicShape( new Vec2F((Entity.Shape.Position.X + 0.0465f) ,  0.15f),new Vec2F(0.008f,0.027f)), 
             new Image (Path.Combine("Assets", "Images", "BulletRed2.png")));
         Game.playerShots.Add(shot);
     }

@@ -8,7 +8,6 @@ namespace galaga.Squadron {
     public interface ISquadron {
         // Empty
         EntityContainer<Enemy> Enemies { get; }
-        // Max amount in rows
         int MaxEnemies { get; }
         // Creating the enemies 
         void CreateEnemies(List<Image> enemyStrides);
@@ -20,8 +19,8 @@ namespace galaga.Squadron {
         public int MaxEnemies { get; }
 
         public formation1() {
-        MaxEnemies = 10;
-        Enemies = new EntityContainer<Enemy> (0);
+            MaxEnemies = 10;
+            Enemies = new EntityContainer<Enemy> (0);
         }
         public void CreateEnemies(List<Image> enemyStrides){
             for (int i= 0; i < MaxEnemies; i++){
@@ -41,8 +40,8 @@ namespace galaga.Squadron {
         public EntityContainer<Enemy> Enemies { get; }
         public int MaxEnemies { get; }
         public formation2() {
-        MaxEnemies = 8;
-        Enemies = new EntityContainer<Enemy> (0);
+            MaxEnemies = 8;
+            Enemies = new EntityContainer<Enemy> (0);
         }
         public void CreateEnemies(List<Image> enemyStrides){
             for (int i= 1; i <= MaxEnemies; i++){
@@ -59,8 +58,8 @@ namespace galaga.Squadron {
         public EntityContainer<Enemy> Enemies { get; }
         public int MaxEnemies { get; }
         public formation3() {
-        MaxEnemies = 8;
-        Enemies = new EntityContainer<Enemy> (0);
+            MaxEnemies = 8;
+            Enemies = new EntityContainer<Enemy> (0);
         }
         public void CreateEnemies(List<Image> enemyStrides){
             for (int i= 1; i <= MaxEnemies; i++){
@@ -78,5 +77,20 @@ namespace galaga.Squadron {
                 }
             }
         }
+    }
+    public class Boss : ISquadron {
+        public EntityContainer<Enemy> Enemies { get; }
+        public int MaxEnemies { get; }
+        public Boss() {
+            MaxEnemies = 1;
+            Enemies = new EntityContainer<Enemy> (0);
+        }
+        public void CreateEnemies(List<Image> enemyStrides) {
+            var enemy = new Enemy(
+            new DynamicShape(new Vec2F(0.35f,1.0f), new Vec2F(0.3f, 0.3f)),
+            new ImageStride(80,enemyStrides));
+            enemy.Health = 100;
+            Enemies.AddDynamicEntity(enemy);
+        }        
     }    
 }
